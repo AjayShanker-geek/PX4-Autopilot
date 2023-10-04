@@ -413,8 +413,11 @@ void Ekf::fixCovarianceErrors(bool force_symmetry)
 		// check that the vertical component of accel bias is consistent with both the vertical position and velocity innovation
 		bool bad_acc_bias = false;
 		if (fabsf(down_dvel_bias) > dVel_bias_lim) {
-
+#if defined(CONFIG_EKF2_GNSS)
 			bool bad_vz_gps = _control_status.flags.gps    && (down_dvel_bias * _aid_src_gnss_vel.innovation[2] < 0.0f);
+#else
+			bool bad_vz_gps = false;
+#endif // CONFIG_EKF2_GNSS
 #if defined(CONFIG_EKF2_EXTERNAL_VISION)
 			bool bad_vz_ev  = _control_status.flags.ev_vel && (down_dvel_bias * _aid_src_ev_vel.innovation[2] < 0.0f);
 #else
@@ -427,7 +430,11 @@ void Ekf::fixCovarianceErrors(bool force_symmetry)
 #else
 				bool bad_z_baro = false;
 #endif
+#if defined(CONFIG_EKF2_GNSS)
 				bool bad_z_gps  = _control_status.flags.gps_hgt  && (down_dvel_bias * _aid_src_gnss_hgt.innovation < 0.0f);
+#else
+				bool bad_z_gps  = false;
+#endif
 
 #if defined(CONFIG_EKF2_RANGE_FINDER)
 				bool bad_z_rng  = _control_status.flags.rng_hgt  && (down_dvel_bias * _aid_src_rng_hgt.innovation  < 0.0f);
