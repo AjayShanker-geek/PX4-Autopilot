@@ -179,11 +179,14 @@ bool Ekf::fuseMag(const Vector3f &mag, estimator_aid_source3d_s &aid_src_mag, bo
 		VectorState Kfusion = P * H / aid_src_mag.innovation_variance[index];
 
 		if (!update_all_states) {
-			for (unsigned row = 0; row <= 15; row++) {
+			unsigned mag_index_first = math::min(State::mag_I.idx, State::mag_B.idx);
+			unsigned mag_index_last = math::max(State::mag_I.idx + State::mag_I.dof, State::mag_B.idx + State::mag_B.dof);
+
+			for (unsigned row = 0; row < mag_index_first; row++) {
 				Kfusion(row) = 0.f;
 			}
 
-			for (unsigned row = 22; row <= 23; row++) {
+			for (unsigned row = mag_index_last; row < State::size; row++) {
 				Kfusion(row) = 0.f;
 			}
 		}
